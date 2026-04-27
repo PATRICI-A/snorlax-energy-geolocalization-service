@@ -1,0 +1,1 @@
+# snorlax-energy-geolocalization-service
