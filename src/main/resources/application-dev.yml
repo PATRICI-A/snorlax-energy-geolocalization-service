@@ -27,6 +27,10 @@ geo:
   campus:
     default-radius-meters: ${GEO_DEFAULT_RADIUS:500}
 
+google:
+  maps:
+    api-key: ${GOOGLE_MAPS_API_KEY:}
+
 springdoc:
   swagger-ui:
     use-root-path: true
