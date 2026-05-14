@@ -3,7 +3,7 @@ spring:
     exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/geolocalization}
+      uri: "mongodb+srv://juandiego:6bXniF5I6Ftk5gfD@geolocalizacion.j7gyrmc.mongodb.net/geolocalization?retryWrites=true&w=majority&appName=geolocalizacion"
   rabbitmq:
     host: ${RABBITMQ_HOST:woodpecker.rmq.cloudamqp.com}
     port: ${RABBITMQ_PORT:5671}
@@ -14,7 +14,7 @@ spring:
       enabled: ${RABBITMQ_SSL:true}
 
 server:
-  port: ${SERVER_PORT:8083}
+  port: ${SERVER_PORT:8084}
 
 jwt:
   secret: ${JWT_SECRET:dev-secret-key-must-be-at-least-32-characters}
