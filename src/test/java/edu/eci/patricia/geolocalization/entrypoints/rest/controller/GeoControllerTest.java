@@ -1,6 +1,5 @@
 package edu.eci.patricia.geolocalization.entrypoints.rest.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.eci.patricia.geolocalization.application.dto.response.LocationResponseDto;
 import edu.eci.patricia.geolocalization.application.dto.response.NearbyUserResponseDto;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetLocationPort;
@@ -10,10 +9,7 @@ import edu.eci.patricia.geolocalization.entrypoints.rest.mapper.GeoRestMapper;
 import edu.eci.patricia.geolocalization.infrastructure.external.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -37,9 +33,6 @@ class GeoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockitoBean
     private UpdateLocationPort updateLocationPort;
