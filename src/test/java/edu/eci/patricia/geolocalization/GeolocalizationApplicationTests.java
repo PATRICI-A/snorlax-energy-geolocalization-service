@@ -27,5 +27,6 @@ class GeolocalizationApplicationTests {
 
     @Test
     void contextLoads() {
+        // verifies the Spring context starts without errors
     }
 }
