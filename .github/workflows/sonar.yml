@@ -1,0 +1,43 @@
+name: QA – SonarCloud
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened]
+
+env:
+  JAVA_VERSION: '21'
+
+jobs:
+  sonar:
+    name: "QA – SonarCloud Analysis"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21 with Maven cache
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: Build & Test (genera clases y reporte JaCoCo para Sonar)
+        env:
+          JWT_SECRET:             ${{ secrets.JWT_SECRET_TEST }}
+          SPRING_PROFILES_ACTIVE: dev
+        run: mvn clean verify -B
+
+      - name: SonarCloud analysis
+        uses: SonarSource/sonarcloud-github-action@v3
+        env:
+          GITHUB_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN:        ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL:     ${{ secrets.SONAR_HOST_URL }}
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}

@@ -97,12 +97,17 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <artifactId>spring-boot-test-autoconfigure</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security-test</artifactId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -168,6 +173,7 @@
                         <exclude>edu/eci/patricia/geolocalization/entrypoints/rest/request/**</exclude>
                         <exclude>edu/eci/patricia/geolocalization/entrypoints/rest/mapper/**</exclude>
                         <exclude>edu/eci/patricia/geolocalization/entrypoints/advice/ErrorResponse.class</exclude>
+                        <exclude>edu/eci/patricia/geolocalization/infrastructure/external/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

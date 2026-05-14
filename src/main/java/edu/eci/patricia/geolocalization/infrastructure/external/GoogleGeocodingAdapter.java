@@ -14,9 +14,6 @@ import java.util.Optional;
 @Component
 public class GoogleGeocodingAdapter implements CampusZoneResolverPort {
 
-    private static final String GEOCODING_URL =
-            "https://maps.googleapis.com/maps/api/geocode/json";
-
     private static final List<String> POI_TYPES =
             List.of("establishment", "point_of_interest", "university", "school");
 
