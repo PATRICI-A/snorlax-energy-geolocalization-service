@@ -144,6 +144,15 @@ El JSON tiene este formato (Sebastian te lo comparte por el canal del equipo):
   "tenantId":       "...",
   "subscriptionId": "..."
 }
+
+{
+  "clientId": "<AZURE_CLIENT_ID>",
+  "clientSecret": "<AZURE_CLIENT_SECRET>",
+  "subscriptionId": "<AZURE_SUBSCRIPTION_ID>",
+  "tenantId": "<AZURE_TENANT_ID>"
+}
+
+
 ```
 
 Guárdalo completo → lo usarás en el Paso 4.
@@ -167,28 +176,7 @@ Guárdalo completo → lo usarás en el Paso 4.
 
 ---
 
-## Paso 5 – Configurar SonarCloud
-
-> La organización **`patrici-a`** ya está creada. **No crees una nueva.**
-
-1. Entra a [sonarcloud.io](https://sonarcloud.io) con tu cuenta de GitHub
-2. Clic en **+** (arriba a la derecha) → **Analyze new project**
-3. En el dropdown de Organization selecciona **`patrici-a`**
-4. Crea el proyecto:
-   - **Display Name**: `<nombre-servicio>`
-   - **Visibility**: `Public`
-   - Clic en **Next** → selecciona **With GitHub Actions**
-5. Selecciona **Maven** como tipo de proyecto
-6. Asegúrate de que tu repo tiene el archivo `sonar-project.properties` con este contenido:
-   ```properties
-   sonar.organization=patrici-a
-   sonar.java.binaries=target/classes
-   sonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-   ```
-
----
-
-## Paso 6 – Primer despliegue
+## Paso 5 – Primer despliegue
 
 En tu terminal, desde la carpeta del proyecto:
 

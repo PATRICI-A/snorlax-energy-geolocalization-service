@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: edu.eci.patricia.geolocalization.application.usecase.UpdateLocationUseCaseTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.433 s -- in edu.eci.patricia.geolocalization.application.usecase.UpdateLocationUseCaseTest
