@@ -12,5 +12,6 @@ public interface GeoRestMapper {
     @Mapping(source = "longitude", target = "longitude")
     @Mapping(source = "accuracy", target = "accuracy")
     @Mapping(source = "campusZone", target = "campusZone")
+    @Mapping(source = "timestamp", target = "timestamp")
     UpdateLocationRequestDto toDto(UpdateLocationRequest request);
 }

@@ -3,7 +3,7 @@ spring:
     exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   data:
     mongodb:
-      uri: "mongodb+srv://juandiego:6bXniF5I6Ftk5gfD@geolocalizacion.j7gyrmc.mongodb.net/geolocalization?retryWrites=true&w=majority&appName=geolocalizacion"
+      uri: "${MONGODB_URI:mongodb+srv://juandiego:6bXniF5I6Ftk5gfD@geolocalizacion.j7gyrmc.mongodb.net/geolocalization?retryWrites=true&w=majority&appName=geolocalizacion}"
   rabbitmq:
     host: ${RABBITMQ_HOST:woodpecker.rmq.cloudamqp.com}
     port: ${RABBITMQ_PORT:5671}
@@ -23,9 +23,25 @@ auth:
   service:
     url: ${AUTH_SERVICE_URL:http://localhost:8080}
 
+user:
+  service:
+    url: ${USER_SERVICE_URL:http://localhost:8099}
+
+parche:
+  service:
+    url: ${PARCHE_SERVICE_URL:http://localhost:8085}
+
+campus:
+  events:
+    service:
+      url: ${CAMPUS_EVENTS_SERVICE_URL:http://localhost:8086}
+
 geo:
   campus:
     default-radius-meters: ${GEO_DEFAULT_RADIUS:500}
+    center-lat: ${GEO_CAMPUS_CENTER_LAT:4.6035}
+    center-lng: ${GEO_CAMPUS_CENTER_LNG:-74.0653}
+    perimeter-radius-meters: ${GEO_CAMPUS_PERIMETER:1000}
 
 google:
   maps:

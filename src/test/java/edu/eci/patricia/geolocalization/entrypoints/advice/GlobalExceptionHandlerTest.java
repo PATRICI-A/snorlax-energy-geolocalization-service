@@ -2,6 +2,8 @@ package edu.eci.patricia.geolocalization.entrypoints.advice;
 
 import edu.eci.patricia.geolocalization.domain.exceptions.InvalidRadiusException;
 import edu.eci.patricia.geolocalization.domain.exceptions.LocationNotFoundException;
+import edu.eci.patricia.geolocalization.domain.exceptions.OutOfCampusException;
+import edu.eci.patricia.geolocalization.domain.exceptions.StaleTimestampException;
 import edu.eci.patricia.geolocalization.domain.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -48,5 +50,23 @@ class GlobalExceptionHandlerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody().codigo()).isEqualTo("BAD_REQUEST");
+    }
+
+    @Test
+    void shouldReturn422ForOutOfCampus() {
+        ResponseEntity<ErrorResponse> response = handler.handleOutOfCampus(
+                new OutOfCampusException());
+
+        assertThat(response.getStatusCode().value()).isEqualTo(422);
+        assertThat(response.getBody().codigo()).isEqualTo("OUT_OF_CAMPUS");
+    }
+
+    @Test
+    void shouldReturn422ForStaleTimestamp() {
+        ResponseEntity<ErrorResponse> response = handler.handleStaleTimestamp(
+                new StaleTimestampException());
+
+        assertThat(response.getStatusCode().value()).isEqualTo(422);
+        assertThat(response.getBody().codigo()).isEqualTo("STALE_TIMESTAMP");
     }
 }

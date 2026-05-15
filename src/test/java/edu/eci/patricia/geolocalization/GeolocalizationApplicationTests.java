@@ -1,6 +1,9 @@
 package edu.eci.patricia.geolocalization;
 
 import edu.eci.patricia.geolocalization.infrastructure.adapters.persistence.repository.LocationMongoRepository;
+import edu.eci.patricia.geolocalization.infrastructure.external.CampusEventsFeignClient;
+import edu.eci.patricia.geolocalization.infrastructure.external.ParcheFeignClient;
+import edu.eci.patricia.geolocalization.infrastructure.external.UserProfileFeignClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -24,6 +27,15 @@ class GeolocalizationApplicationTests {
 
     @MockitoBean
     RabbitTemplate rabbitTemplate;
+
+    @MockitoBean
+    UserProfileFeignClient userProfileFeignClient;
+
+    @MockitoBean
+    ParcheFeignClient parcheFeignClient;
+
+    @MockitoBean
+    CampusEventsFeignClient campusEventsFeignClient;
 
     @Test
     void contextLoads() {

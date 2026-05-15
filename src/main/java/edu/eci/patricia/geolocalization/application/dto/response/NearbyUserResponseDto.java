@@ -8,5 +8,7 @@ public record NearbyUserResponseDto(
         double longitude,
         String campusZone,
         double distanceMeters,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        boolean activo,
+        boolean lowPrecision
 ) {}

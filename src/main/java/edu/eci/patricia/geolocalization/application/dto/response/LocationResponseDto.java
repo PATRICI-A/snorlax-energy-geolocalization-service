@@ -8,5 +8,7 @@ public record LocationResponseDto(
         double longitude,
         String campusZone,
         Double accuracy,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        boolean activo,
+        boolean lowPrecision
 ) {}

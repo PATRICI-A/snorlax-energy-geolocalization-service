@@ -11,6 +11,7 @@ public class Location {
     private String campusZone;
     private Double accuracy;
     private LocalDateTime updatedAt;
+    private boolean lowPrecision;
 
     public Location(String id, String userId, double latitude, double longitude,
                     String campusZone, Double accuracy, LocalDateTime updatedAt) {
@@ -21,6 +22,7 @@ public class Location {
         this.campusZone = campusZone;
         this.accuracy = accuracy;
         this.updatedAt = updatedAt != null ? updatedAt : LocalDateTime.now();
+        this.lowPrecision = accuracy == null || accuracy > 100.0;
     }
 
     public void updateCoordinates(double latitude, double longitude, Double accuracy) {
@@ -28,6 +30,11 @@ public class Location {
         this.longitude = longitude;
         this.accuracy = accuracy;
         this.updatedAt = LocalDateTime.now();
+        this.lowPrecision = accuracy == null || accuracy > 100.0;
+    }
+
+    public boolean isActive() {
+        return updatedAt != null && updatedAt.isAfter(LocalDateTime.now().minusMinutes(5));
     }
 
     public String getId() { return id; }
@@ -37,7 +44,9 @@ public class Location {
     public String getCampusZone() { return campusZone; }
     public Double getAccuracy() { return accuracy; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public boolean isLowPrecision() { return lowPrecision; }
 
     public void setCampusZone(String campusZone) { this.campusZone = campusZone; }
     public void setId(String id) { this.id = id; }
+    public void setLowPrecision(boolean lowPrecision) { this.lowPrecision = lowPrecision; }
 }

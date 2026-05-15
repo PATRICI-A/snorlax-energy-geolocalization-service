@@ -6,8 +6,18 @@ services:
       - "8083:8083"
     env_file:
       - .env
-    depends_on:
-      - mongodb
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      MONGODB_URI: ${MONGODB_URI}
+      SERVER_PORT: ${SERVER_PORT:-8083}
+      JWT_SECRET: ${JWT_SECRET}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT:-5671}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_VIRTUAL_HOST: ${RABBITMQ_VIRTUAL_HOST}
+      RABBITMQ_SSL: ${RABBITMQ_SSL:-true}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
     restart: unless-stopped
 
   mongodb:

@@ -25,4 +25,38 @@ class LocationTest {
         Location location = new Location("id", "user-1", 4.60, -74.06, null, null, null);
         assertThat(location.getUpdatedAt()).isNotNull();
     }
+
+    @Test
+    void shouldBeActiveWhenUpdatedAtWithinFiveMinutes() {
+        Location location = new Location("id", "user-1", 4.60, -74.06, "Bloque A", 5.0,
+                LocalDateTime.now().minusMinutes(2));
+
+        assertThat(location.isActive()).isTrue();
+    }
+
+    @Test
+    void shouldBeInactiveWhenUpdatedAtExceedsFiveMinutes() {
+        Location location = new Location("id", "user-1", 4.60, -74.06, "Bloque A", 5.0,
+                LocalDateTime.now().minusMinutes(10));
+
+        assertThat(location.isActive()).isFalse();
+    }
+
+    @Test
+    void shouldMarkLowPrecisionWhenAccuracyAboveThreshold() {
+        Location location = new Location("id", "user-1", 4.60, -74.06, "Bloque A", 150.0, LocalDateTime.now());
+        assertThat(location.isLowPrecision()).isTrue();
+    }
+
+    @Test
+    void shouldNotMarkLowPrecisionWhenAccuracyBelowThreshold() {
+        Location location = new Location("id", "user-1", 4.60, -74.06, "Bloque A", 10.0, LocalDateTime.now());
+        assertThat(location.isLowPrecision()).isFalse();
+    }
+
+    @Test
+    void shouldMarkLowPrecisionWhenAccuracyIsNull() {
+        Location location = new Location("id", "user-1", 4.60, -74.06, "Bloque A", null, LocalDateTime.now());
+        assertThat(location.isLowPrecision()).isTrue();
+    }
 }

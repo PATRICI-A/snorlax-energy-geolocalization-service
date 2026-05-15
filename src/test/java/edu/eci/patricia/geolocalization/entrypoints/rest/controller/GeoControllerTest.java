@@ -3,6 +3,8 @@ package edu.eci.patricia.geolocalization.entrypoints.rest.controller;
 import edu.eci.patricia.geolocalization.application.dto.response.LocationResponseDto;
 import edu.eci.patricia.geolocalization.application.dto.response.NearbyUserResponseDto;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetLocationPort;
+import edu.eci.patricia.geolocalization.domain.ports.in.GetMapDataPort;
+import edu.eci.patricia.geolocalization.domain.ports.in.GetNearbyActiveUsersPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetNearbyUsersPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.UpdateLocationPort;
 import edu.eci.patricia.geolocalization.entrypoints.rest.mapper.GeoRestMapper;
@@ -42,6 +44,12 @@ class GeoControllerTest {
     private GetNearbyUsersPort getNearbyUsersPort;
 
     @MockitoBean
+    private GetNearbyActiveUsersPort getNearbyActiveUsersPort;
+
+    @MockitoBean
+    private GetMapDataPort getMapDataPort;
+
+    @MockitoBean
     private GeoRestMapper mapper;
 
     @MockitoBean
@@ -50,20 +58,22 @@ class GeoControllerTest {
     @Test
     void shouldReturnLocationOnGetByUserId() throws Exception {
         LocationResponseDto dto = new LocationResponseDto(
-                "user-123", 4.6035, -74.0655, "Bloque B", 10.0, LocalDateTime.now());
+                "user-123", 4.6035, -74.0655, "Bloque B", 10.0, LocalDateTime.now(), true, false);
         when(getLocationPort.getLocation("user-123")).thenReturn(dto);
 
         mockMvc.perform(get("/api/v1/geo/location/user-123")
                         .with(user("user-123").roles("USER")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value("user-123"))
-                .andExpect(jsonPath("$.campusZone").value("Bloque B"));
+                .andExpect(jsonPath("$.campusZone").value("Bloque B"))
+                .andExpect(jsonPath("$.activo").value(true))
+                .andExpect(jsonPath("$.lowPrecision").value(false));
     }
 
     @Test
     void shouldReturnNearbyUsers() throws Exception {
         NearbyUserResponseDto nearby = new NearbyUserResponseDto(
-                "user-B", 4.604, -74.066, "Bloque C", 120.0, LocalDateTime.now());
+                "user-B", 4.604, -74.066, "Bloque C", 120.0, LocalDateTime.now(), true, false);
         when(getNearbyUsersPort.getNearbyUsers(anyDouble(), anyDouble(), anyDouble()))
                 .thenReturn(List.of(nearby));
 

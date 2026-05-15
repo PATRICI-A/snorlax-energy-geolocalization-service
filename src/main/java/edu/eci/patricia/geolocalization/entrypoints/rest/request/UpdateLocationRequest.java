@@ -5,6 +5,8 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 public class UpdateLocationRequest {
 
@@ -20,4 +22,5 @@ public class UpdateLocationRequest {
 
     private Double accuracy;
     private String campusZone;
+    private Instant timestamp;
 }

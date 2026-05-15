@@ -2,9 +2,14 @@ package edu.eci.patricia.geolocalization.application.usecase;
 
 import edu.eci.patricia.geolocalization.application.dto.request.UpdateLocationRequestDto;
 import edu.eci.patricia.geolocalization.application.dto.response.LocationResponseDto;
+import edu.eci.patricia.geolocalization.domain.exceptions.GeoLocationDisabledException;
+import edu.eci.patricia.geolocalization.domain.exceptions.OutOfCampusException;
+import edu.eci.patricia.geolocalization.domain.exceptions.StaleTimestampException;
 import edu.eci.patricia.geolocalization.domain.model.Location;
 import edu.eci.patricia.geolocalization.domain.ports.out.CampusZoneResolverPort;
 import edu.eci.patricia.geolocalization.domain.ports.out.LocationRepositoryPort;
+import edu.eci.patricia.geolocalization.domain.ports.out.UserProfilePort;
+import edu.eci.patricia.geolocalization.infrastructure.config.CampusProperties;
 import edu.eci.patricia.geolocalization.infrastructure.external.LocationEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,12 +18,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,6 +43,12 @@ class UpdateLocationUseCaseTest {
     @Mock
     private LocationEventPublisher eventPublisher;
 
+    @Mock
+    private UserProfilePort userProfilePort;
+
+    @Mock
+    private CampusProperties campusProperties;
+
     @InjectMocks
     private UpdateLocationUseCase useCase;
 
@@ -43,7 +57,12 @@ class UpdateLocationUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        dto = new UpdateLocationRequestDto(4.6035, -74.0655, 10.0, null);
+        when(userProfilePort.isGeoLocationEnabled(anyString())).thenReturn(true);
+        when(campusProperties.getCenterLat()).thenReturn(4.6035);
+        when(campusProperties.getCenterLng()).thenReturn(-74.0653);
+        when(campusProperties.getPerimeterRadiusMeters()).thenReturn(1000.0);
+
+        dto = new UpdateLocationRequestDto(4.6035, -74.0655, 10.0, null, null);
         savedLocation = new Location("loc-1", "user-123", 4.6035, -74.0655,
                 "Escuela Colombiana de Ingeniería Julio Garavito", 10.0, LocalDateTime.now());
     }
@@ -67,7 +86,7 @@ class UpdateLocationUseCaseTest {
     @Test
     void shouldFallBackToClientZoneWhenGoogleMapsFails() {
         UpdateLocationRequestDto dtoWithZone =
-                new UpdateLocationRequestDto(4.6035, -74.0655, 10.0, "Bloque B");
+                new UpdateLocationRequestDto(4.6035, -74.0655, 10.0, "Bloque B", null);
         Location savedWithFallback = new Location("loc-1", "user-123", 4.6035, -74.0655,
                 "Bloque B", 10.0, LocalDateTime.now());
 
@@ -94,5 +113,32 @@ class UpdateLocationUseCaseTest {
 
         assertThat(result.latitude()).isEqualTo(4.6035);
         verify(locationRepository).save(any());
+    }
+
+    @Test
+    void shouldThrowWhenGeoLocationDisabled() {
+        when(userProfilePort.isGeoLocationEnabled("user-123")).thenReturn(false);
+
+        assertThatThrownBy(() -> useCase.updateLocation("user-123", dto))
+                .isInstanceOf(GeoLocationDisabledException.class);
+    }
+
+    @Test
+    void shouldThrowStaleTimestampWhenTimestampTooOld() {
+        UpdateLocationRequestDto dtoWithStaleTimestamp = new UpdateLocationRequestDto(
+                4.6035, -74.0655, 10.0, null,
+                Instant.now().minusSeconds(60));
+
+        assertThatThrownBy(() -> useCase.updateLocation("user-123", dtoWithStaleTimestamp))
+                .isInstanceOf(StaleTimestampException.class);
+    }
+
+    @Test
+    void shouldThrowOutOfCampusWhenCoordinatesOutsidePerimeter() {
+        UpdateLocationRequestDto outsideDto = new UpdateLocationRequestDto(
+                0.0, 0.0, 10.0, null, null);
+
+        assertThatThrownBy(() -> useCase.updateLocation("user-123", outsideDto))
+                .isInstanceOf(OutOfCampusException.class);
     }
 }

@@ -1,7 +1,10 @@
 package edu.eci.patricia.geolocalization.entrypoints.advice;
 
+import edu.eci.patricia.geolocalization.domain.exceptions.GeoLocationDisabledException;
 import edu.eci.patricia.geolocalization.domain.exceptions.InvalidRadiusException;
 import edu.eci.patricia.geolocalization.domain.exceptions.LocationNotFoundException;
+import edu.eci.patricia.geolocalization.domain.exceptions.OutOfCampusException;
+import edu.eci.patricia.geolocalization.domain.exceptions.StaleTimestampException;
 import edu.eci.patricia.geolocalization.domain.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,24 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(GeoLocationDisabledException.class)
+    public ResponseEntity<ErrorResponse> handleGeoLocationDisabled(GeoLocationDisabledException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse.of("GEO_LOCATION_DISABLED", ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(OutOfCampusException.class)
+    public ResponseEntity<ErrorResponse> handleOutOfCampus(OutOfCampusException ex) {
+        return ResponseEntity.status(422)
+                .body(ErrorResponse.of("OUT_OF_CAMPUS", ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(StaleTimestampException.class)
+    public ResponseEntity<ErrorResponse> handleStaleTimestamp(StaleTimestampException ex) {
+        return ResponseEntity.status(422)
+                .body(ErrorResponse.of("STALE_TIMESTAMP", ex.getMessage(), null));
+    }
 
     @ExceptionHandler(LocationNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleLocationNotFound(LocationNotFoundException ex) {
