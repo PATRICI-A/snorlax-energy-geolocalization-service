@@ -59,11 +59,10 @@
 
 | Nombre | Rol |
 |---|---|
-| [NOMBRE INTEGRANTE 1] | Backend Developer |
-| [NOMBRE INTEGRANTE 2] | Backend Developer |
-| [NOMBRE INTEGRANTE 3] | Backend Developer |
-| [NOMBRE INTEGRANTE 4] | Backend Developer |
-| [NOMBRE INTEGRANTE 5] | Backend Developer |
+| Sebastian Castillejo | Backend Developer |
+| Juan Melo | Backend Developer |
+| Samuel Gil | Backend Developer |
+| Maria Jose | Backend Developer |
 
 ---
 
@@ -322,6 +321,25 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 | `accuracy` | Double | Precisión GPS |
 | `updatedAt` | String (ISO 8601) | Timestamp de la última actualización |
 
+#### Ejemplo
+
+```
+GET /api/v1/geo/location/user-123
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+```
+
+```json
+// Response
+{
+  "userId": "user-123",
+  "latitude": 4.6035,
+  "longitude": -74.0655,
+  "campusZone": "Escuela Colombiana de Ingeniería Julio Garavito",
+  "accuracy": 12.5,
+  "updatedAt": "2026-05-13T21:00:00"
+}
+```
+
 #### Errores manejados
 
 | Código HTTP | Escenario | Mensaje |
@@ -335,7 +353,30 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 **Endpoint:** `GET /api/v1/geo/location/me`
 
-Misma respuesta que F02. El `userId` se extrae del JWT — no requiere parámetro.
+#### Request
+
+| Campo | Tipo | Origen | Obligatorio | Descripción |
+|---|---|---|---|---|
+| `Authorization` | String | header | Sí | `Bearer <JWT>` — el `userId` se extrae del token, no requiere parámetro adicional |
+
+#### Ejemplo
+
+```
+GET /api/v1/geo/location/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+```
+
+```json
+// Response
+{
+  "userId": "user-123",
+  "latitude": 4.6035,
+  "longitude": -74.0655,
+  "campusZone": "Escuela Colombiana de Ingeniería Julio Garavito",
+  "accuracy": 12.5,
+  "updatedAt": "2026-05-13T21:00:00"
+}
+```
 
 #### Errores manejados
 
@@ -496,10 +537,9 @@ src/test/java/edu/eci/patricia/geolocalization/
 
 | Métrica | Objetivo | Obtenido |
 |---|---|---|
-| Cobertura de instrucciones | ≥ 80% | [X]% |
-| Clases excluidas del análisis | Config, DTOs, Mappers, Persistence, Main | — |
-
-> Las clases excluidas del análisis JaCoCo son: `GeolocalizationApplication`, `infrastructure/config/**`, `infrastructure/adapters/persistence/**`, `infrastructure/adapters/adapter/**`, `application/dto/**`, `entrypoints/rest/request/**`, `entrypoints/rest/mapper/**`, `entrypoints/advice/ErrorResponse`.
+| Cobertura de instrucciones | ≥ 80% | 54% |
+| Cobertura de ramas | ≥ 60% | 38% |
+| Clases cubiertas | — | 13 de 17 |
 
 ---
 
@@ -536,7 +576,7 @@ src/test/java/edu/eci/patricia/geolocalization/
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/[ORG]/snorlax-energy-geolocalization-service.git
+git clone https://github.com/PATRICI-A/snorlax-energy-geolocalization-service.git
 cd snorlax-energy-geolocalization-service
 
 # 2. Ejecutar con perfil dev
@@ -781,8 +821,8 @@ jobs:
       - run: ./mvnw verify
       - name: Docker Build & Push
         run: |
-          docker build -t ghcr.io/[ORG]/snorlax-energy-geolocalization:${{ github.ref_name }} .
-          docker push ghcr.io/[ORG]/snorlax-energy-geolocalization:${{ github.ref_name }}
+          docker build -t ghcr.io/PATRICI-A/snorlax-energy-geolocalization:${{ github.ref_name }} .
+          docker push ghcr.io/PATRICI-A/snorlax-energy-geolocalization:${{ github.ref_name }}
 ```
 
 ### Captura — Pipeline de producción exitoso
