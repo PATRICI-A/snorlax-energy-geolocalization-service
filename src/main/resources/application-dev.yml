@@ -1,0 +1,38 @@
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  data:
+    mongodb:
+      uri: "mongodb+srv://juandiego:6bXniF5I6Ftk5gfD@geolocalizacion.j7gyrmc.mongodb.net/geolocalization?retryWrites=true&w=majority&appName=geolocalizacion"
+  rabbitmq:
+    host: ${RABBITMQ_HOST:woodpecker.rmq.cloudamqp.com}
+    port: ${RABBITMQ_PORT:5671}
+    username: ${RABBITMQ_USERNAME:thjdybjd}
+    password: ${RABBITMQ_PASSWORD:eHWjGdLhNYN73Ct96wUAV1KkpwnDiKZj}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST:thjdybjd}
+    ssl:
+      enabled: ${RABBITMQ_SSL:true}
+
+server:
+  port: ${SERVER_PORT:8084}
+
+jwt:
+  secret: ${JWT_SECRET:dev-secret-key-must-be-at-least-32-characters}
+
+auth:
+  service:
+    url: ${AUTH_SERVICE_URL:http://localhost:8080}
+
+geo:
+  campus:
+    default-radius-meters: ${GEO_DEFAULT_RADIUS:500}
+
+google:
+  maps:
+    api-key: ${GOOGLE_MAPS_API_KEY:}
+
+springdoc:
+  swagger-ui:
+    use-root-path: true
+  servers:
+    - url: ${SERVER_URL:http://localhost:8083}
