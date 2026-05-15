@@ -605,10 +605,10 @@ docker compose up --build
 
 | Ambiente | URL |
 |---|---|
-| **Producción** | `[URL DE DESPLIEGUE]/swagger-ui.html` |
+| **Producción (Azure)** | `https://app-patricia-geolocalization-ardqbwcncrduhgdw.canadacentral-01.azurewebsites.net/swagger-ui/index.html` |
 | **Local** | `http://localhost:8084/swagger-ui.html` |
 | **Docker** | `http://localhost:8084/swagger-ui.html` |
-| **OpenAPI JSON** | `http://localhost:8084/v3/api-docs` |
+| **OpenAPI JSON** | `https://app-patricia-geolocalization-ardqbwcncrduhgdw.canadacentral-01.azurewebsites.net/v3/api-docs` |
 
 ---
 
