@@ -27,23 +27,24 @@ class GetLocationUseCaseTest {
     private GetLocationUseCase useCase;
 
     @Test
-    void shouldReturnLocationWhenExists() {
-        Location location = new Location("loc-1", "user-123", 4.6035, -74.0655, "Bloque B", 10.0, LocalDateTime.now());
-        when(locationRepository.findByUserId("user-123")).thenReturn(Optional.of(location));
+    void getLocation_found_returnsDto() {
+        Location location = new Location("id1", "user-1", 4.628, -74.064, "Bloque A", 10.0, LocalDateTime.now());
+        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(location));
 
-        LocationResponseDto result = useCase.getLocation("user-123");
+        LocationResponseDto result = useCase.getLocation("user-1");
 
-        assertThat(result.userId()).isEqualTo("user-123");
-        assertThat(result.latitude()).isEqualTo(4.6035);
-        assertThat(result.longitude()).isEqualTo(-74.0655);
+        assertThat(result.userId()).isEqualTo("user-1");
+        assertThat(result.latitude()).isEqualTo(4.628);
+        assertThat(result.longitude()).isEqualTo(-74.064);
+        assertThat(result.campusZone()).isEqualTo("Bloque A");
     }
 
     @Test
-    void shouldThrowLocationNotFoundWhenMissing() {
-        when(locationRepository.findByUserId("unknown")).thenReturn(Optional.empty());
+    void getLocation_notFound_throwsLocationNotFoundException() {
+        when(locationRepository.findByUserId("user-x")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.getLocation("unknown"))
+        assertThatThrownBy(() -> useCase.getLocation("user-x"))
                 .isInstanceOf(LocationNotFoundException.class)
-                .hasMessageContaining("unknown");
+                .hasMessageContaining("user-x");
     }
 }

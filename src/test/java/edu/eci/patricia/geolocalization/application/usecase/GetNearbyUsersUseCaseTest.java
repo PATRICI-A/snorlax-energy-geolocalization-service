@@ -28,28 +28,44 @@ class GetNearbyUsersUseCaseTest {
     private GetNearbyUsersUseCase useCase;
 
     @Test
-    void shouldReturnNearbyUsersSortedByDistance() {
-        Location loc1 = new Location("1", "user-A", 4.6036, -74.0656, "Bloque A", null, LocalDateTime.now());
-        Location loc2 = new Location("2", "user-B", 4.6100, -74.0700, "Bloque C", null, LocalDateTime.now());
+    void getNearbyUsers_validRadius_returnsSortedList() {
+        Location close = new Location("1", "user-close", 4.629, -74.064, "Bloque A", null, LocalDateTime.now());
+        Location far   = new Location("2", "user-far",   4.635, -74.064, "Bloque B", null, LocalDateTime.now());
         when(locationRepository.findNearby(anyDouble(), anyDouble(), anyDouble()))
-                .thenReturn(List.of(loc2, loc1));
+                .thenReturn(List.of(far, close));
 
-        List<NearbyUserResponseDto> result = useCase.getNearbyUsers(4.6035, -74.0655, 500);
+        List<NearbyUserResponseDto> result = useCase.getNearbyUsers(4.628, -74.064, 1000);
 
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).distanceMeters())
-                .isLessThan(result.get(1).distanceMeters());
+        assertThat(result.get(0).userId()).isEqualTo("user-close");
+        assertThat(result.get(1).userId()).isEqualTo("user-far");
+        assertThat(result.get(0).distanceMeters()).isLessThan(result.get(1).distanceMeters());
     }
 
     @Test
-    void shouldThrowInvalidRadiusWhenZero() {
-        assertThatThrownBy(() -> useCase.getNearbyUsers(4.6035, -74.0655, 0))
+    void getNearbyUsers_zeroRadius_throwsInvalidRadiusException() {
+        assertThatThrownBy(() -> useCase.getNearbyUsers(4.628, -74.064, 0))
                 .isInstanceOf(InvalidRadiusException.class);
     }
 
     @Test
-    void shouldThrowInvalidRadiusWhenExceedsMax() {
-        assertThatThrownBy(() -> useCase.getNearbyUsers(4.6035, -74.0655, 6000))
+    void getNearbyUsers_negativeRadius_throwsInvalidRadiusException() {
+        assertThatThrownBy(() -> useCase.getNearbyUsers(4.628, -74.064, -1))
                 .isInstanceOf(InvalidRadiusException.class);
+    }
+
+    @Test
+    void getNearbyUsers_radiusExceedsMax_throwsInvalidRadiusException() {
+        assertThatThrownBy(() -> useCase.getNearbyUsers(4.628, -74.064, 5001))
+                .isInstanceOf(InvalidRadiusException.class);
+    }
+
+    @Test
+    void getNearbyUsers_emptyResult_returnsEmptyList() {
+        when(locationRepository.findNearby(anyDouble(), anyDouble(), anyDouble()))
+                .thenReturn(List.of());
+
+        List<NearbyUserResponseDto> result = useCase.getNearbyUsers(4.628, -74.064, 500);
+        assertThat(result).isEmpty();
     }
 }
