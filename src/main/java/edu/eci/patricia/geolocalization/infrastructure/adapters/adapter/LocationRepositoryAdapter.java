@@ -38,6 +38,7 @@ public class LocationRepositoryAdapter implements LocationRepositoryPort {
         doc.setCampusZone(location.getCampusZone());
         doc.setAccuracy(location.getAccuracy());
         doc.setLowPrecision(location.isLowPrecision());
+        doc.setSharingEnabled(true); // consent verified upstream in UpdateLocationUseCase
         doc.setUpdatedAt(location.getUpdatedAt() != null ? location.getUpdatedAt() : LocalDateTime.now());
 
         LocationDocument saved = mongoRepository.save(doc);
@@ -79,6 +80,22 @@ public class LocationRepositoryAdapter implements LocationRepositoryPort {
     }
 
     @Override
+    public List<Location> findNearbyActiveSharing(double latitude, double longitude, double radiusMeters, LocalDateTime activeSince) {
+        NearQuery nearQuery = NearQuery
+                .near(new Point(longitude, latitude))
+                .maxDistance(new Distance(radiusMeters / 1000.0, Metrics.KILOMETERS))
+                .spherical(true)
+                .query(Query.query(Criteria.where("updatedAt").gte(activeSince)
+                        .and("sharingEnabled").is(true)));
+
+        GeoResults<LocationDocument> results = mongoTemplate.geoNear(nearQuery, LocationDocument.class);
+
+        return results.getContent().stream()
+                .map(gr -> toDomain(gr.getContent()))
+                .toList();
+    }
+
+    @Override
     public List<Location> findAllActive(LocalDateTime activeSince) {
         Query query = Query.query(Criteria.where("updatedAt").gte(activeSince));
         return mongoTemplate.find(query, LocationDocument.class).stream()
@@ -98,6 +115,7 @@ public class LocationRepositoryAdapter implements LocationRepositoryPort {
                 doc.getId(), doc.getUserId(), lat, lon,
                 doc.getCampusZone(), doc.getAccuracy(), doc.getUpdatedAt());
         location.setLowPrecision(doc.isLowPrecision());
+        location.setSharingEnabled(doc.isSharingEnabled());
         return location;
     }
 }

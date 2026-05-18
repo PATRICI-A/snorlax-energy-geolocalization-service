@@ -7,5 +7,5 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserProfileDto {
     private String userId;
-    private boolean geoLocationEnabled;
+    private boolean geolocationEnabled;
 }

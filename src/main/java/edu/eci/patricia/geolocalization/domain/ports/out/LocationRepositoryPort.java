@@ -11,6 +11,7 @@ public interface LocationRepositoryPort {
     Optional<Location> findByUserId(String userId);
     List<Location> findNearby(double latitude, double longitude, double radiusMeters);
     List<Location> findNearbyActive(double latitude, double longitude, double radiusMeters, LocalDateTime activeSince);
+    List<Location> findNearbyActiveSharing(double latitude, double longitude, double radiusMeters, LocalDateTime activeSince);
     List<Location> findAllActive(LocalDateTime activeSince);
     void deleteByUserId(String userId);
 }

@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Tag(name = "Geolocation", description = "Campus location detection and proximity queries for matching and parches")
@@ -114,13 +115,19 @@ public class GeoController {
     }
 
     @Operation(summary = "Get map data",
-            description = "Returns active users, parches, and campus events for map display. " +
-                    "Active users updated within the last 5 minutes. " +
-                    "Parches and events fetched in parallel from their respective services.")
-    @ApiResponse(responseCode = "200", description = "Combined map data")
+            description = "Returns the requesting user's position, parches, and campus events. " +
+                    "Use 'capas' (comma-separated) to select layers: mi_posicion, parches, eventos. " +
+                    "Other users' exact positions are never exposed — only zone-level activity.")
+    @ApiResponse(responseCode = "200", description = "Combined map data for the requested layers")
     @ApiResponse(responseCode = "401", description = "JWT token missing or invalid")
     @GetMapping("/map-data")
-    public ResponseEntity<MapDataResponseDto> getMapData() {
-        return ResponseEntity.ok(getMapDataPort.getMapData());
+    public ResponseEntity<MapDataResponseDto> getMapData(
+            @AuthenticationPrincipal String userId,
+            @RequestParam(defaultValue = "500") @Positive double radius,
+            @RequestParam(required = false) String capas) {
+        List<String> layers = (capas != null && !capas.isBlank())
+                ? Arrays.stream(capas.split(",")).map(String::trim).toList()
+                : List.of("mi_posicion", "parches", "eventos");
+        return ResponseEntity.ok(getMapDataPort.getMapData(userId, layers, radius));
     }
 }

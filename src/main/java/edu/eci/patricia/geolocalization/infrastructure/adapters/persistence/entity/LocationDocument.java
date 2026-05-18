@@ -32,6 +32,7 @@ public class LocationDocument {
     private String campusZone;
     private Double accuracy;
     private boolean lowPrecision;
+    private boolean sharingEnabled;
 
     private LocalDateTime updatedAt;
 }

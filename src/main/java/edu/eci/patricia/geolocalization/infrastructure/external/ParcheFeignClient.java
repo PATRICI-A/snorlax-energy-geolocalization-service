@@ -11,5 +11,5 @@ import java.util.List;
 public interface ParcheFeignClient {
 
     @GetMapping("/api/v1/parches")
-    List<ParceDto> getActiveParches(@RequestParam("status") String status);
+    List<ParceDto> getActiveParches(@RequestParam("estado") String estado);
 }

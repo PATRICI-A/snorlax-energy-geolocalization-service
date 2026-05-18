@@ -12,6 +12,7 @@ public class Location {
     private Double accuracy;
     private LocalDateTime updatedAt;
     private boolean lowPrecision;
+    private boolean sharingEnabled = true;
 
     public Location(String id, String userId, double latitude, double longitude,
                     String campusZone, Double accuracy, LocalDateTime updatedAt) {
@@ -49,4 +50,6 @@ public class Location {
     public void setCampusZone(String campusZone) { this.campusZone = campusZone; }
     public void setId(String id) { this.id = id; }
     public void setLowPrecision(boolean lowPrecision) { this.lowPrecision = lowPrecision; }
+    public boolean isSharingEnabled() { return sharingEnabled; }
+    public void setSharingEnabled(boolean sharingEnabled) { this.sharingEnabled = sharingEnabled; }
 }

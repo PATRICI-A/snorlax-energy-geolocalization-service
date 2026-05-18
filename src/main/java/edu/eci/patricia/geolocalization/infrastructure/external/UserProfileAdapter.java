@@ -19,7 +19,7 @@ public class UserProfileAdapter implements UserProfilePort {
     public boolean isGeoLocationEnabled(String userId) {
         try {
             UserProfileDto profile = userProfileFeignClient.getUserProfile(userId);
-            return profile.isGeoLocationEnabled();
+            return profile.isGeolocationEnabled();
         } catch (FeignException.NotFound e) {
             throw new UserNotFoundException("User not found: " + userId);
         } catch (FeignException e) {

@@ -2,6 +2,7 @@ package edu.eci.patricia.geolocalization.application.usecase;
 
 import edu.eci.patricia.geolocalization.application.dto.response.MapDataResponseDto;
 import edu.eci.patricia.geolocalization.application.dto.response.MapItemDto;
+import edu.eci.patricia.geolocalization.application.dto.response.UserPositionDto;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetMapDataPort;
 import edu.eci.patricia.geolocalization.domain.ports.out.LocationRepositoryPort;
 import edu.eci.patricia.geolocalization.domain.ports.out.PlaceGeocoderPort;
@@ -14,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -24,49 +24,53 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class GetMapDataUseCase implements GetMapDataPort {
 
-    private static final int ACTIVE_MINUTES = 5;
-
     private final LocationRepositoryPort locationRepository;
     private final ParcheFeignClient parcheFeignClient;
     private final CampusEventsFeignClient campusEventsFeignClient;
     private final PlaceGeocoderPort placeGeocoder;
 
     @Override
-    public MapDataResponseDto getMapData() {
-        LocalDateTime activeSince = LocalDateTime.now().minusMinutes(ACTIVE_MINUTES);
+    public MapDataResponseDto getMapData(String userId, List<String> capas, double radius) {
+        UserPositionDto userPosition = resolveUserPosition(userId, capas);
 
-        List<MapItemDto> activeUsers = locationRepository.findAllActive(activeSince).stream()
-                .map(loc -> new MapItemDto(
-                        "USER", loc.getUserId(),
-                        loc.getLatitude(), loc.getLongitude(),
-                        loc.getCampusZone(), null, true))
-                .toList();
+        CompletableFuture<List<MapItemDto>> parchesFuture = capas.contains("parches")
+                ? CompletableFuture.supplyAsync(() -> parcheFeignClient.getActiveParches("ACTIVO"))
+                        .thenApply(list -> list.stream().map(this::parceToMapItem).toList())
+                        .exceptionally(e -> {
+                            log.warn("Could not fetch parches: {}", e.getMessage());
+                            return List.of();
+                        })
+                : CompletableFuture.completedFuture(List.of());
 
-        CompletableFuture<List<MapItemDto>> parchesFuture = CompletableFuture
-                .supplyAsync(() -> parcheFeignClient.getActiveParches("ACTIVE"))
-                .thenApply(list -> list.stream().map(this::parceToMapItem).toList())
-                .exceptionally(e -> {
-                    log.warn("Could not fetch parches: {}", e.getMessage());
-                    return List.of();
-                });
+        CompletableFuture<List<MapItemDto>> eventosFuture = capas.contains("eventos")
+                ? CompletableFuture.supplyAsync(campusEventsFeignClient::getActiveEvents)
+                        .thenApply(list -> list.stream().map(this::eventToMapItem).toList())
+                        .exceptionally(e -> {
+                            log.warn("Could not fetch campus events: {}", e.getMessage());
+                            return List.of();
+                        })
+                : CompletableFuture.completedFuture(List.of());
 
-        CompletableFuture<List<MapItemDto>> eventsFuture = CompletableFuture
-                .supplyAsync(campusEventsFeignClient::getActiveEvents)
-                .thenApply(list -> list.stream().map(this::eventToMapItem).toList())
-                .exceptionally(e -> {
-                    log.warn("Could not fetch campus events: {}", e.getMessage());
-                    return List.of();
-                });
+        return new MapDataResponseDto(
+                200,
+                userPosition,
+                List.of(),             // zonas: campus zone polygons — to be implemented via zone-service
+                parchesFuture.join(),
+                eventosFuture.join()
+        );
+    }
 
-        List<MapItemDto> parches = parchesFuture.join();
-        List<MapItemDto> events = eventsFuture.join();
-
-        return new MapDataResponseDto(activeUsers, parches, events);
+    private UserPositionDto resolveUserPosition(String userId, List<String> capas) {
+        if (!capas.contains("mi_posicion")) {
+            return null;
+        }
+        return locationRepository.findByUserId(userId)
+                .map(loc -> new UserPositionDto(loc.getLatitude(), loc.getLongitude(), loc.getCampusZone()))
+                .orElse(null);
     }
 
     private MapItemDto parceToMapItem(ParceDto p) {
         String label = p.getName() + (p.getPlace() != null ? " — " + p.getPlace() : "");
-
         Double lat = null;
         Double lng = null;
         if (p.getPlace() != null) {
@@ -76,15 +80,12 @@ public class GetMapDataUseCase implements GetMapDataPort {
                 lng = coords.get().getLongitude();
             }
         }
-
-        return new MapItemDto(
-                "PARCE", p.getId() != null ? p.getId().toString() : null,
+        return new MapItemDto("PARCE", p.getId() != null ? p.getId().toString() : null,
                 lat, lng, null, label, true);
     }
 
     private MapItemDto eventToMapItem(CampusEventDto e) {
-        return new MapItemDto(
-                "EVENT", e.getId(),
+        return new MapItemDto("EVENT", e.getId(),
                 e.getLatitude(), e.getLongitude(),
                 e.getCampusZone(), e.getName(), true);
     }
