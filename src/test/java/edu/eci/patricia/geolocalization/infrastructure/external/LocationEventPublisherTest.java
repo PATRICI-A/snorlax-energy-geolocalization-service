@@ -30,14 +30,14 @@ class LocationEventPublisherTest {
 
         publisher.publishLocationUpdated(loc);
 
-        verify(rabbitTemplate).convertAndSend(eq("geo.exchange"), eq("geo.location.updated"), any());
+        verify(rabbitTemplate).convertAndSend(eq("geo.exchange"), eq("geo.location.updated"), any(Object.class));
     }
 
     @Test
     void publishLocationUpdated_rabbitThrows_doesNotPropagateException() {
         Location loc = new Location("id1", "user-1", 4.628, -74.064, "Bloque A", 10.0, LocalDateTime.now());
         doThrow(new RuntimeException("RabbitMQ unavailable"))
-                .when(rabbitTemplate).convertAndSend(any(String.class), any(String.class), any());
+                .when(rabbitTemplate).convertAndSend(any(String.class), any(String.class), any(Object.class));
 
         // Should not throw
         publisher.publishLocationUpdated(loc);
