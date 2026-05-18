@@ -22,10 +22,10 @@ jobs:
           cache: maven
 
       - name: Compile
-        run: ./mvnw compile -B
+        run: mvn compile -B
 
       - name: Run tests
-        run: ./mvnw test -B
+        run: mvn test -B
 
       - name: Docker build smoke test
         run: docker build -t snorlax-energy-geolocalization:ci-test .
