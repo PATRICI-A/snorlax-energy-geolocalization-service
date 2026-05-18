@@ -68,7 +68,7 @@ jobs:
             --name patricia-geo-service-qa \
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:qa-latest \
-            --revision-suffix rev-${{ github.run_number }}
+            --revision-suffix rev-${{ github.run_number }}-${{ github.run_attempt }}
 
       - name: Health check QA
         run: |
