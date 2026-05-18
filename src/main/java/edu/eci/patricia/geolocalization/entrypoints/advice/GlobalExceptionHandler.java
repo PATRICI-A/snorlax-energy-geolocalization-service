@@ -2,6 +2,8 @@ package edu.eci.patricia.geolocalization.entrypoints.advice;
 
 import edu.eci.patricia.geolocalization.domain.exceptions.InvalidRadiusException;
 import edu.eci.patricia.geolocalization.domain.exceptions.LocationNotFoundException;
+import edu.eci.patricia.geolocalization.domain.exceptions.LocationOutsideCampusException;
+import edu.eci.patricia.geolocalization.domain.exceptions.StaleTimestampException;
 import edu.eci.patricia.geolocalization.domain.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidRadius(InvalidRadiusException ex) {
         return ResponseEntity.badRequest()
                 .body(ErrorResponse.of("INVALID_RADIUS", ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(LocationOutsideCampusException.class)
+    public ResponseEntity<ErrorResponse> handleOutsideCampus(LocationOutsideCampusException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ErrorResponse.of("OUTSIDE_CAMPUS", ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(StaleTimestampException.class)
+    public ResponseEntity<ErrorResponse> handleStaleTimestamp(StaleTimestampException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ErrorResponse.of("STALE_TIMESTAMP", ex.getMessage(), null));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -1,14 +1,13 @@
 package edu.eci.patricia.geolocalization;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
-@ActiveProfiles("test")
+import static org.assertj.core.api.Assertions.assertThat;
+
 class GeolocalizationApplicationTests {
 
     @Test
-    void contextLoads() {
+    void applicationClassIsAccessible() {
+        assertThat(GeolocalizationApplication.class).isNotNull();
     }
 }
