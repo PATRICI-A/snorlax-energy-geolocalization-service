@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: ${MONGODB_URI}
+      uri: ${MONGODB_URI:mongodb+srv://juandiego:perroloco90@geolocalizacion.j7gyrmc.mongodb.net/geolocalization}
   rabbitmq:
     host: ${RABBITMQ_HOST:woodpecker.rmq.cloudamqp.com}
     port: ${RABBITMQ_PORT:5671}
