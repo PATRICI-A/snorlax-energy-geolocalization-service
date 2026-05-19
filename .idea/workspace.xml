@@ -6,15 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b541d10b-bd56-4603-94bb-16efc7edfda4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/application/usecase/GetNearbyUsersUseCase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/application/usecase/GetNearbyUsersUseCase.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/application/usecase/UpdateLocationUseCase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/application/usecase/UpdateLocationUseCase.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/domain/valueobjects/Coordinates.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/domain/valueobjects/Coordinates.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/entrypoints/advice/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/entrypoints/advice/GlobalExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/infrastructure/config/RabbitMQConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/infrastructure/config/RabbitMQConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/infrastructure/external/GoogleGeocodingAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/infrastructure/external/GoogleGeocodingAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/infrastructure/external/JwtService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/infrastructure/external/JwtService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/infrastructure/external/LocationEventPublisher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/edu/eci/patricia/geolocalization/infrastructure/external/LocationEventPublisher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/edu/eci/patricia/geolocalization/application/usecase/UpdateLocationUseCaseTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/edu/eci/patricia/geolocalization/application/usecase/UpdateLocationUseCaseTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application-prod.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application-prod.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,7 +82,7 @@
       <updated>1779147134875</updated>
       <workItem from="1779147135919" duration="441000" />
       <workItem from="1779177405279" duration="624000" />
-      <workItem from="1779187692441" duration="2041000" />
+      <workItem from="1779187692441" duration="2896000" />
     </task>
     <servers />
   </component>
