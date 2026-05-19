@@ -1,7 +1,9 @@
 spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   data:
     mongodb:
-      uri: ${MONGODB_URI}
+      uri: ${MONGODB_URI:mongodb+srv://juandiego:6bXniF5I6Ftk5gfD@geolocalizacion.j7gyrmc.mongodb.net/geolocalization?retryWrites=true&w=majority&appName=geolocalizacion}
   rabbitmq:
     host: ${RABBITMQ_HOST:woodpecker.rmq.cloudamqp.com}
     port: ${RABBITMQ_PORT:5671}

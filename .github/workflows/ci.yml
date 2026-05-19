@@ -2,30 +2,57 @@ name: CI – Build & Test
 
 on:
   push:
-    branches: [ main, develop, "feature/**" ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+    types: [opened, synchronize, reopened]
+
+env:
+  JAVA_VERSION: '21'
 
 jobs:
-  build-and-test:
+  build-test:
+    name: "CI – Build & Test"
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up JDK 21
+      - name: Set up JDK 21 with Maven cache
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: ${{ env.JAVA_VERSION }}
           distribution: temurin
           cache: maven
 
-      - name: Compile
-        run: mvn compile -B
+      - name: Build & Test
+        env:
+          JWT_SECRET:             ${{ secrets.JWT_SECRET_TEST }}
+          SPRING_PROFILES_ACTIVE: dev
+        run: mvn clean verify -B
 
-      - name: Run tests
-        run: mvn test -B
+      - name: Upload JaCoCo coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+          retention-days: 14
 
-      - name: Docker build smoke test
-        run: docker build -t snorlax-energy-geolocalization:ci-test .
+      - name: Upload Surefire test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
+          retention-days: 14
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: geolocalization-service-jar
+          path: target/geolocalization-service-*.jar
+          retention-days: 14
