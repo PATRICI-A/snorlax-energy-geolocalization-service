@@ -4,6 +4,7 @@ import edu.eci.patricia.geolocalization.domain.model.Location;
 import edu.eci.patricia.geolocalization.infrastructure.external.dto.LocationUpdatedEventDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +29,7 @@ public class LocationEventPublisher {
         try {
             rabbitTemplate.convertAndSend(GEO_EXCHANGE, LOCATION_UPDATED_KEY, event);
             log.debug("Location event published for user {}", location.getUserId());
-        } catch (Exception e) {
+        } catch (AmqpException e) {
             log.warn("Failed to publish location event for user {}: {}", location.getUserId(), e.getMessage());
         }
     }

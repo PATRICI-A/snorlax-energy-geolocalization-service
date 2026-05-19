@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.time.LocalDateTime;
@@ -36,7 +37,7 @@ class LocationEventPublisherTest {
     @Test
     void publishLocationUpdated_rabbitThrows_doesNotPropagateException() {
         Location loc = new Location("id1", "user-1", 4.628, -74.064, "Bloque A", 10.0, LocalDateTime.now());
-        doThrow(new RuntimeException("RabbitMQ unavailable"))
+        doThrow(new AmqpException("RabbitMQ unavailable"))
                 .when(rabbitTemplate).convertAndSend(any(String.class), any(String.class), any(Object.class));
 
         // Should not throw
