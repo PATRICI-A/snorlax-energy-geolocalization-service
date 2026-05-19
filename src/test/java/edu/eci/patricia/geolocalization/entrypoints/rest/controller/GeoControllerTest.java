@@ -7,6 +7,7 @@ import edu.eci.patricia.geolocalization.domain.exceptions.LocationNotFoundExcept
 import edu.eci.patricia.geolocalization.domain.ports.in.GetLocationPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetMapDataPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetNearbyActiveUsersPort;
+import edu.eci.patricia.geolocalization.domain.ports.in.GetNearbyParchesPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetNearbyUsersPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.UpdateLocationPort;
 import edu.eci.patricia.geolocalization.entrypoints.advice.GlobalExceptionHandler;
@@ -44,6 +45,7 @@ class GeoControllerTest {
     @Mock private GetLocationPort getLocationPort;
     @Mock private GetNearbyUsersPort getNearbyUsersPort;
     @Mock private GetNearbyActiveUsersPort getNearbyActiveUsersPort;
+    @Mock private GetNearbyParchesPort getNearbyParchesPort;
     @Mock private GetMapDataPort getMapDataPort;
     @Mock private GeoRestMapper mapper;
 
@@ -54,7 +56,7 @@ class GeoControllerTest {
     void setUp() {
         GeoController controller = new GeoController(
                 updateLocationPort, getLocationPort, getNearbyUsersPort,
-                getNearbyActiveUsersPort, getMapDataPort, mapper);
+                getNearbyActiveUsersPort, getNearbyParchesPort, getMapDataPort, mapper);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())

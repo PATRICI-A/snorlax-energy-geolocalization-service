@@ -22,4 +22,6 @@ public class ParceDto {
     private UUID captainId;
     private LocalDate date;
     private LocalTime hour;
+    private Double latitude;
+    private Double longitude;
 }

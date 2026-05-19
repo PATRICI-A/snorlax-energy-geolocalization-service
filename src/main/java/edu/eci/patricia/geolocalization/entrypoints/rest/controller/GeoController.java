@@ -2,10 +2,12 @@ package edu.eci.patricia.geolocalization.entrypoints.rest.controller;
 
 import edu.eci.patricia.geolocalization.application.dto.response.LocationResponseDto;
 import edu.eci.patricia.geolocalization.application.dto.response.MapDataResponseDto;
+import edu.eci.patricia.geolocalization.application.dto.response.NearbyParchesResponseDto;
 import edu.eci.patricia.geolocalization.application.dto.response.NearbyUserResponseDto;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetLocationPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetMapDataPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetNearbyActiveUsersPort;
+import edu.eci.patricia.geolocalization.domain.ports.in.GetNearbyParchesPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetNearbyUsersPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.UpdateLocationPort;
 import edu.eci.patricia.geolocalization.entrypoints.advice.ErrorResponse;
@@ -51,6 +53,7 @@ public class GeoController {
     private final GetLocationPort getLocationPort;
     private final GetNearbyUsersPort getNearbyUsersPort;
     private final GetNearbyActiveUsersPort getNearbyActiveUsersPort;
+    private final GetNearbyParchesPort getNearbyParchesPort;
     private final GetMapDataPort getMapDataPort;
     private final GeoRestMapper mapper;
 
@@ -143,6 +146,22 @@ public class GeoController {
             @RequestParam(defaultValue = "false") boolean soloActivos) {
         String targetUserId = (userId != null && !userId.isBlank()) ? userId : requestingUserId;
         return ResponseEntity.ok(getNearbyActiveUsersPort.getNearbyUsers(targetUserId, radiusMeters, soloActivos));
+    }
+
+    @Operation(summary = "Get nearby parches (PTR06.2)",
+            description = "Returns all active parches within the specified radius from the authenticated user's last known location. " +
+                    "Distances are calculated using the Haversine formula. Results are sorted by distance ascending.")
+    @ApiResponse(responseCode = "200", description = "List of nearby parches sorted by distance")
+    @ApiResponse(responseCode = "400", description = "Radius out of range (must be 1–5000 m)")
+    @ApiResponse(responseCode = "404", description = "User has no registered location — must activate location first")
+    @ApiResponse(responseCode = "503", description = "parche-service unavailable")
+    @ApiResponse(responseCode = "401", description = "JWT token missing or invalid")
+    @GetMapping("/nearby-parches")
+    public ResponseEntity<NearbyParchesResponseDto> getNearbyParches(
+            @AuthenticationPrincipal String userId,
+            @Parameter(description = "Search radius in meters (1–5000). Default: 500.", example = "500")
+            @RequestParam(defaultValue = "500") @Positive double radiusMeters) {
+        return ResponseEntity.ok(getNearbyParchesPort.getNearbyParches(userId, radiusMeters));
     }
 
     @Operation(summary = "Get map data",

@@ -4,6 +4,7 @@ import edu.eci.patricia.geolocalization.application.dto.request.UpdateLocationRe
 import edu.eci.patricia.geolocalization.application.dto.response.LocationResponseDto;
 import edu.eci.patricia.geolocalization.domain.exceptions.LocationOutsideCampusException;
 import edu.eci.patricia.geolocalization.domain.exceptions.StaleTimestampException;
+import edu.eci.patricia.geolocalization.domain.exceptions.TooFrequentUpdateException;
 import edu.eci.patricia.geolocalization.domain.model.Location;
 import edu.eci.patricia.geolocalization.domain.ports.in.UpdateLocationPort;
 import edu.eci.patricia.geolocalization.domain.ports.out.CampusZoneResolverPort;
@@ -17,7 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -30,6 +33,7 @@ public class UpdateLocationUseCase implements UpdateLocationPort {
     private static final double CAMPUS_LON_MIN = -74.075;
     private static final double CAMPUS_LON_MAX = -74.050;
     private static final long MAX_TIMESTAMP_AGE_SECONDS = 30;
+    private static final long MIN_UPDATE_INTERVAL_SECONDS = 30;
 
     private final LocationRepositoryPort locationRepository;
     private final CampusZoneResolverPort campusZoneResolver;
@@ -41,13 +45,14 @@ public class UpdateLocationUseCase implements UpdateLocationPort {
         validateTimestamp(dto.timestamp());
         validateCampusBoundary(dto.latitude(), dto.longitude());
 
-        Location location = locationRepository.findByUserId(userId)
-                .orElse(new Location(null, userId, dto.latitude(), dto.longitude(),
-                        dto.campusZone(), dto.accuracy(), LocalDateTime.now()));
+        Optional<Location> existing = locationRepository.findByUserId(userId);
+        existing.ifPresent(this::validateUpdateFrequency);
+
+        Location location = existing.orElse(new Location(null, userId, dto.latitude(), dto.longitude(),
+                dto.campusZone(), dto.accuracy(), LocalDateTime.now()));
 
         location.updateCoordinates(dto.latitude(), dto.longitude(), dto.accuracy());
 
-        // Auto-detect zone via Google Maps; fall back to client-provided value
         String zone = campusZoneResolver.resolveZone(dto.latitude(), dto.longitude())
                 .orElse(dto.campusZone());
         location.setCampusZone(zone);
@@ -59,12 +64,11 @@ public class UpdateLocationUseCase implements UpdateLocationPort {
         return toResponse(saved);
     }
 
-    private void notifyGamification(String campusZone) {
-        if (campusZone == null || campusZone.isBlank()) return;
-        try {
-            gamificationClient.reportZoneVisited(Map.of("campusZone", campusZone));
-        } catch (FeignException ex) {
-            log.warn("[Geo] Gamification notification failed — campusZone={} error={}", campusZone, ex.getMessage());
+    private void validateUpdateFrequency(Location location) {
+        if (location.getUpdatedAt() == null) return;
+        long secondsSince = ChronoUnit.SECONDS.between(location.getUpdatedAt(), LocalDateTime.now());
+        if (secondsSince < MIN_UPDATE_INTERVAL_SECONDS) {
+            throw new TooFrequentUpdateException(MIN_UPDATE_INTERVAL_SECONDS - secondsSince);
         }
     }
 
@@ -80,6 +84,15 @@ public class UpdateLocationUseCase implements UpdateLocationPort {
         if (latitude < CAMPUS_LAT_MIN || latitude > CAMPUS_LAT_MAX
                 || longitude < CAMPUS_LON_MIN || longitude > CAMPUS_LON_MAX) {
             throw new LocationOutsideCampusException(latitude, longitude);
+        }
+    }
+
+    private void notifyGamification(String campusZone) {
+        if (campusZone == null || campusZone.isBlank()) return;
+        try {
+            gamificationClient.reportZoneVisited(Map.of("campusZone", campusZone));
+        } catch (FeignException ex) {
+            log.warn("[Geo] Gamification notification failed — campusZone={} error={}", campusZone, ex.getMessage());
         }
     }
 

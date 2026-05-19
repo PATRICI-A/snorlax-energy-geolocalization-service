@@ -7,5 +7,6 @@ public record MapDataResponseDto(
         UserPositionDto usuario,
         List<MapItemDto> zonas,
         List<MapItemDto> parches,
-        List<MapItemDto> eventos
+        List<MapItemDto> eventos,
+        List<MapItemDto> usuariosCercanos
 ) {}

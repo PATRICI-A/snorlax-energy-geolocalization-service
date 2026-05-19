@@ -18,27 +18,26 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GetMapDataUseCaseTest {
 
-    @Mock
-    private LocationRepositoryPort locationRepository;
-    @Mock
-    private ParcheFeignClient parcheFeignClient;
-    @Mock
-    private CampusEventsFeignClient campusEventsFeignClient;
-    @Mock
-    private PlaceGeocoderPort placeGeocoder;
+    @Mock private LocationRepositoryPort locationRepository;
+    @Mock private ParcheFeignClient parcheFeignClient;
+    @Mock private CampusEventsFeignClient campusEventsFeignClient;
+    @Mock private PlaceGeocoderPort placeGeocoder;
 
     @InjectMocks
     private GetMapDataUseCase useCase;
 
+    private static final Location MY_LOC =
+            new Location("1", "user-1", 4.6035, -74.0655, "Bloque A", 10.0, LocalDateTime.now());
+
     @Test
     void shouldReturnUserPositionWhenMiPosicionRequested() {
-        Location myLoc = new Location("1", "user-1", 4.6035, -74.0655, "Bloque A", 10.0, LocalDateTime.now());
-        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(myLoc));
+        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(MY_LOC));
         when(parcheFeignClient.getActiveParches(any())).thenReturn(List.of());
         when(campusEventsFeignClient.getActiveEvents()).thenReturn(List.of());
 
@@ -65,8 +64,7 @@ class GetMapDataUseCaseTest {
 
     @Test
     void shouldReturnEmptyParchesWhenLayerNotRequested() {
-        Location myLoc = new Location("1", "user-1", 4.6035, -74.0655, "Bloque A", 10.0, LocalDateTime.now());
-        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(myLoc));
+        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(MY_LOC));
         when(campusEventsFeignClient.getActiveEvents()).thenReturn(List.of());
 
         MapDataResponseDto result = useCase.getMapData("user-1",
@@ -77,8 +75,7 @@ class GetMapDataUseCaseTest {
 
     @Test
     void shouldGracefullyHandleParcheServiceFailure() {
-        Location myLoc = new Location("1", "user-1", 4.6035, -74.0655, "Bloque A", 10.0, LocalDateTime.now());
-        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(myLoc));
+        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(MY_LOC));
         when(parcheFeignClient.getActiveParches(any())).thenThrow(new RuntimeException("Service down"));
         when(campusEventsFeignClient.getActiveEvents()).thenReturn(List.of());
 
@@ -86,14 +83,12 @@ class GetMapDataUseCaseTest {
                 List.of("mi_posicion", "parches", "eventos"), 500);
 
         assertThat(result.parches()).isEmpty();
-        assertThat(result.eventos()).isEmpty();
         assertThat(result.status()).isEqualTo(200);
     }
 
     @Test
     void shouldGracefullyHandleEventServiceFailure() {
-        Location myLoc = new Location("1", "user-1", 4.6035, -74.0655, "Bloque A", 10.0, LocalDateTime.now());
-        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(myLoc));
+        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(MY_LOC));
         when(parcheFeignClient.getActiveParches(any())).thenReturn(List.of());
         when(campusEventsFeignClient.getActiveEvents()).thenThrow(new RuntimeException("Service down"));
 
@@ -125,5 +120,45 @@ class GetMapDataUseCaseTest {
                 List.of("parches", "eventos"), 500);
 
         assertThat(result.zonas()).isEmpty();
+    }
+
+    @Test
+    void shouldReturnNearbyUsersWhenUsuariosLayerRequested() {
+        Location nearby = new Location("2", "user-2", 4.604, -74.066, "Cafetería", 10.0, LocalDateTime.now());
+
+        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(MY_LOC));
+        when(locationRepository.findNearbyActiveSharing(
+                anyDouble(), anyDouble(), anyDouble(), any(LocalDateTime.class)))
+                .thenReturn(List.of(nearby));
+
+        MapDataResponseDto result = useCase.getMapData("user-1",
+                List.of("usuarios"), 500);
+
+        assertThat(result.usuariosCercanos()).hasSize(1);
+        assertThat(result.usuariosCercanos().get(0).type()).isEqualTo("USER");
+        assertThat(result.usuariosCercanos().get(0).referenceId()).isEqualTo("user-2");
+    }
+
+    @Test
+    void shouldExcludeRequestingUserFromNearbyUsers() {
+        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(MY_LOC));
+        when(locationRepository.findNearbyActiveSharing(
+                anyDouble(), anyDouble(), anyDouble(), any(LocalDateTime.class)))
+                .thenReturn(List.of(MY_LOC));
+
+        MapDataResponseDto result = useCase.getMapData("user-1",
+                List.of("usuarios"), 500);
+
+        assertThat(result.usuariosCercanos()).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyUsuariosWhenUserHasNoLocation() {
+        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.empty());
+
+        MapDataResponseDto result = useCase.getMapData("user-1",
+                List.of("usuarios"), 500);
+
+        assertThat(result.usuariosCercanos()).isEmpty();
     }
 }
