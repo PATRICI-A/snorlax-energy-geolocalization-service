@@ -56,7 +56,7 @@ public class GoogleGeocodingAdapter implements CampusZoneResolverPort {
                     .or(() -> Optional.ofNullable(
                             response.results().get(0).formattedAddress()));
 
-        } catch (Exception e) {
+        } catch (Exception e) { //NOSONAR — RestClient puede lanzar diversas excepciones runtime no tipadas
             log.warn("Google Geocoding API error for ({}, {}): {}", latitude, longitude, e.getMessage());
             return Optional.empty();
         }

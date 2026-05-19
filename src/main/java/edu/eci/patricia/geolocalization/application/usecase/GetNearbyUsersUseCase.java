@@ -9,6 +9,7 @@ import edu.eci.patricia.geolocalization.domain.valueobjects.Coordinates;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -38,7 +39,7 @@ public class GetNearbyUsersUseCase implements GetNearbyUsersPort {
                             loc.getCampusZone(), distance, loc.getUpdatedAt()
                     );
                 })
-                .sorted((a, b) -> Double.compare(a.distanceMeters(), b.distanceMeters()))
+                .sorted(Comparator.comparingDouble(NearbyUserResponseDto::distanceMeters))
                 .toList();
     }
 }

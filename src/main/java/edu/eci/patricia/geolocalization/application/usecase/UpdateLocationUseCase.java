@@ -8,13 +8,18 @@ import edu.eci.patricia.geolocalization.domain.model.Location;
 import edu.eci.patricia.geolocalization.domain.ports.in.UpdateLocationPort;
 import edu.eci.patricia.geolocalization.domain.ports.out.CampusZoneResolverPort;
 import edu.eci.patricia.geolocalization.domain.ports.out.LocationRepositoryPort;
+import edu.eci.patricia.geolocalization.infrastructure.external.GamificationClient;
 import edu.eci.patricia.geolocalization.infrastructure.external.LocationEventPublisher;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UpdateLocationUseCase implements UpdateLocationPort {
@@ -29,6 +34,7 @@ public class UpdateLocationUseCase implements UpdateLocationPort {
     private final LocationRepositoryPort locationRepository;
     private final CampusZoneResolverPort campusZoneResolver;
     private final LocationEventPublisher eventPublisher;
+    private final GamificationClient gamificationClient;
 
     @Override
     public LocationResponseDto updateLocation(String userId, UpdateLocationRequestDto dto) {
@@ -48,8 +54,18 @@ public class UpdateLocationUseCase implements UpdateLocationPort {
 
         Location saved = locationRepository.save(location);
         eventPublisher.publishLocationUpdated(saved);
+        notifyGamification(saved.getCampusZone());
 
         return toResponse(saved);
+    }
+
+    private void notifyGamification(String campusZone) {
+        if (campusZone == null || campusZone.isBlank()) return;
+        try {
+            gamificationClient.reportZoneVisited(Map.of("campusZone", campusZone));
+        } catch (FeignException ex) {
+            log.warn("[Geo] Gamification notification failed — campusZone={} error={}", campusZone, ex.getMessage());
+        }
     }
 
     private void validateTimestamp(Instant timestamp) {
