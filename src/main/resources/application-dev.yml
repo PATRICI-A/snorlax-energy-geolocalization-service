@@ -23,6 +23,10 @@ auth:
   service:
     url: ${AUTH_SERVICE_URL:http://localhost:8080}
 
+gamification:
+  service:
+    url: ${GAMIFICATION_SERVICE_URL:http://localhost:8080}
+
 geo:
   campus:
     default-radius-meters: ${GEO_DEFAULT_RADIUS:500}

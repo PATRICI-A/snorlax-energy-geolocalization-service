@@ -7,6 +7,7 @@ import edu.eci.patricia.geolocalization.domain.exceptions.StaleTimestampExceptio
 import edu.eci.patricia.geolocalization.domain.model.Location;
 import edu.eci.patricia.geolocalization.domain.ports.out.CampusZoneResolverPort;
 import edu.eci.patricia.geolocalization.domain.ports.out.LocationRepositoryPort;
+import edu.eci.patricia.geolocalization.infrastructure.external.GamificationClient;
 import edu.eci.patricia.geolocalization.infrastructure.external.LocationEventPublisher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,7 @@ class UpdateLocationUseCaseTest {
     @Mock private LocationRepositoryPort locationRepository;
     @Mock private CampusZoneResolverPort campusZoneResolver;
     @Mock private LocationEventPublisher eventPublisher;
+    @Mock private GamificationClient gamificationClient;
 
     @InjectMocks
     private UpdateLocationUseCase useCase;
