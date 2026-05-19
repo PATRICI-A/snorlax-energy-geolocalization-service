@@ -3,6 +3,17 @@ spring:
     name: geolocalization-service
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb+srv://juandiego:perroloco90@geolocalizacion.j7gyrmc.mongodb.net/geolocalization?retryWrites=true&w=majority}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST:/}
+    ssl:
+      enabled: ${RABBITMQ_SSL:false}
 
 server:
   forward-headers-strategy: framework
