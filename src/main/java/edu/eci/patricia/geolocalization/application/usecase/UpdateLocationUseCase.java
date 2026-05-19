@@ -10,6 +10,7 @@ import edu.eci.patricia.geolocalization.domain.ports.out.CampusZoneResolverPort;
 import edu.eci.patricia.geolocalization.domain.ports.out.LocationRepositoryPort;
 import edu.eci.patricia.geolocalization.infrastructure.external.GamificationClient;
 import edu.eci.patricia.geolocalization.infrastructure.external.LocationEventPublisher;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -62,7 +63,7 @@ public class UpdateLocationUseCase implements UpdateLocationPort {
         if (campusZone == null || campusZone.isBlank()) return;
         try {
             gamificationClient.reportZoneVisited(Map.of("campusZone", campusZone));
-        } catch (Exception ex) {
+        } catch (FeignException ex) {
             log.warn("[Geo] Gamification notification failed — campusZone={} error={}", campusZone, ex.getMessage());
         }
     }

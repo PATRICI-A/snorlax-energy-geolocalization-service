@@ -9,6 +9,7 @@ import edu.eci.patricia.geolocalization.domain.ports.out.CampusZoneResolverPort;
 import edu.eci.patricia.geolocalization.domain.ports.out.LocationRepositoryPort;
 import edu.eci.patricia.geolocalization.infrastructure.external.GamificationClient;
 import edu.eci.patricia.geolocalization.infrastructure.external.LocationEventPublisher;
+import feign.FeignException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +23,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -113,5 +116,34 @@ class UpdateLocationUseCaseTest {
 
         assertThatThrownBy(() -> useCase.updateLocation("user-1", dto))
                 .isInstanceOf(LocationOutsideCampusException.class);
+    }
+
+    @Test
+    void updateLocation_gamificationClientThrows_doesNotPropagateException() {
+        UpdateLocationRequestDto dto = new UpdateLocationRequestDto(LAT, LON, 10.0, "Bloque A", null);
+        Location saved = new Location("id1", "user-1", LAT, LON, "Bloque A", 10.0, LocalDateTime.now());
+
+        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.empty());
+        when(campusZoneResolver.resolveZone(LAT, LON)).thenReturn(Optional.of("Bloque A"));
+        when(locationRepository.save(any())).thenReturn(saved);
+        when(gamificationClient.reportZoneVisited(any())).thenThrow(mock(FeignException.class));
+
+        LocationResponseDto result = useCase.updateLocation("user-1", dto);
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void updateLocation_nullCampusZone_doesNotCallGamification() {
+        UpdateLocationRequestDto dto = new UpdateLocationRequestDto(LAT, LON, 10.0, null, null);
+        Location saved = new Location("id1", "user-1", LAT, LON, null, 10.0, LocalDateTime.now());
+
+        when(locationRepository.findByUserId("user-1")).thenReturn(Optional.empty());
+        when(campusZoneResolver.resolveZone(LAT, LON)).thenReturn(Optional.empty());
+        when(locationRepository.save(any())).thenReturn(saved);
+
+        useCase.updateLocation("user-1", dto);
+
+        verify(gamificationClient, never()).reportZoneVisited(any());
     }
 }

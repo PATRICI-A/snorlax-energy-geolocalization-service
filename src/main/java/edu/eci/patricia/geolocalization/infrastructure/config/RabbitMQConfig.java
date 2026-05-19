@@ -43,7 +43,7 @@ public class RabbitMQConfig {
         return args -> {
             try {
                 rabbitAdmin.initialize();
-            } catch (Exception e) {
+            } catch (Exception e) { //NOSONAR — AmqpException y sus subtipos no están disponibles en este contexto de ApplicationRunner
                 log.warn("RabbitMQ no disponible al arrancar — exchange se declarara en la primera conexion: {}", e.getMessage());
             }
         };
