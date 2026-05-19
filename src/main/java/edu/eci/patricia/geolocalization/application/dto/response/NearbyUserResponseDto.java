@@ -17,5 +17,7 @@ public record NearbyUserResponseDto(
         @Schema(description = "Haversine distance in meters from the query coordinates", example = "45.3")
         double distanceMeters,
         @Schema(description = "ISO-8601 timestamp of the user's last location update")
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        boolean activo,
+        boolean lowPrecision
 ) {}

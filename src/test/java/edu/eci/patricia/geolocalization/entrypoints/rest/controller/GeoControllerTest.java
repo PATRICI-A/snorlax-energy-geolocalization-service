@@ -5,6 +5,8 @@ import edu.eci.patricia.geolocalization.application.dto.response.LocationRespons
 import edu.eci.patricia.geolocalization.application.dto.response.NearbyUserResponseDto;
 import edu.eci.patricia.geolocalization.domain.exceptions.LocationNotFoundException;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetLocationPort;
+import edu.eci.patricia.geolocalization.domain.ports.in.GetMapDataPort;
+import edu.eci.patricia.geolocalization.domain.ports.in.GetNearbyActiveUsersPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.GetNearbyUsersPort;
 import edu.eci.patricia.geolocalization.domain.ports.in.UpdateLocationPort;
 import edu.eci.patricia.geolocalization.entrypoints.advice.GlobalExceptionHandler;
@@ -41,6 +43,8 @@ class GeoControllerTest {
     @Mock private UpdateLocationPort updateLocationPort;
     @Mock private GetLocationPort getLocationPort;
     @Mock private GetNearbyUsersPort getNearbyUsersPort;
+    @Mock private GetNearbyActiveUsersPort getNearbyActiveUsersPort;
+    @Mock private GetMapDataPort getMapDataPort;
     @Mock private GeoRestMapper mapper;
 
     private MockMvc mockMvc;
@@ -49,7 +53,8 @@ class GeoControllerTest {
     @BeforeEach
     void setUp() {
         GeoController controller = new GeoController(
-                updateLocationPort, getLocationPort, getNearbyUsersPort, mapper);
+                updateLocationPort, getLocationPort, getNearbyUsersPort,
+                getNearbyActiveUsersPort, getMapDataPort, mapper);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
@@ -68,7 +73,7 @@ class GeoControllerTest {
     @Test
     void updateLocation_validRequest_returns200() throws Exception {
         LocationResponseDto response = new LocationResponseDto(
-                USER_ID, 4.630, -74.063, "Bloque A", 10.0, LocalDateTime.now());
+                USER_ID, 4.630, -74.063, "Bloque A", 10.0, LocalDateTime.now(), true, false);
         when(mapper.toDto(any())).thenReturn(
                 new UpdateLocationRequestDto(4.630, -74.063, 10.0, "Bloque A", null));
         when(updateLocationPort.updateLocation(eq(USER_ID), any())).thenReturn(response);
@@ -83,7 +88,7 @@ class GeoControllerTest {
     @Test
     void getLocation_found_returns200() throws Exception {
         LocationResponseDto response = new LocationResponseDto(
-                "other", 4.629, -74.064, "Cafetería", null, LocalDateTime.now());
+                "other", 4.629, -74.064, "Cafetería", null, LocalDateTime.now(), true, false);
         when(getLocationPort.getLocation("other")).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/geo/location/other"))
@@ -104,7 +109,7 @@ class GeoControllerTest {
     @Test
     void getMyLocation_returns200() throws Exception {
         LocationResponseDto response = new LocationResponseDto(
-                USER_ID, 4.630, -74.063, "Bloque A", 10.0, LocalDateTime.now());
+                USER_ID, 4.630, -74.063, "Bloque A", 10.0, LocalDateTime.now(), true, false);
         when(getLocationPort.getLocation(USER_ID)).thenReturn(response);
 
         mockMvc.perform(get("/api/v1/geo/location/me"))
@@ -115,7 +120,7 @@ class GeoControllerTest {
     @Test
     void getNearbyUsers_validParams_returns200() throws Exception {
         NearbyUserResponseDto nearby = new NearbyUserResponseDto(
-                "neighbor", 4.629, -74.064, "Cafetería", 45.3, LocalDateTime.now());
+                "neighbor", 4.629, -74.064, "Cafetería", 45.3, LocalDateTime.now(), true, false);
         when(getNearbyUsersPort.getNearbyUsers(anyDouble(), anyDouble(), anyDouble()))
                 .thenReturn(List.of(nearby));
 

@@ -86,7 +86,8 @@ public class UpdateLocationUseCase implements UpdateLocationPort {
     private LocationResponseDto toResponse(Location loc) {
         return new LocationResponseDto(
                 loc.getUserId(), loc.getLatitude(), loc.getLongitude(),
-                loc.getCampusZone(), loc.getAccuracy(), loc.getUpdatedAt()
+                loc.getCampusZone(), loc.getAccuracy(), loc.getUpdatedAt(),
+                loc.isActive(), loc.isLowPrecision()
         );
     }
 }

@@ -17,5 +17,7 @@ public record LocationResponseDto(
         @Schema(description = "GPS accuracy in meters", example = "12.0", nullable = true)
         Double accuracy,
         @Schema(description = "ISO-8601 timestamp of the last update")
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        boolean activo,
+        boolean lowPrecision
 ) {}
