@@ -9,7 +9,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,8 +59,8 @@ class GoogleGeocodingAdapterTest {
 
     @Test
     void resolveZone_poiResult_prefersPOI() {
-        GeocodingResponseDto.Result street = new GeocodingResponseDto.Result("Carrera 45", List.of("route"), null);
-        GeocodingResponseDto.Result poi    = new GeocodingResponseDto.Result("ECI", List.of("university", "establishment"), null);
+        GeocodingResponseDto.Result street = new GeocodingResponseDto.Result("Carrera 45", List.of("route"), null, null);
+        GeocodingResponseDto.Result poi    = new GeocodingResponseDto.Result("ECI", List.of("university", "establishment"), null, null);
         mockRestClient(new GeocodingResponseDto(List.of(street, poi), "OK"));
 
         assertThat(adapter.resolveZone(4.628, -74.064)).contains("ECI");
@@ -69,7 +68,7 @@ class GoogleGeocodingAdapterTest {
 
     @Test
     void resolveZone_onlyStreet_returnsFallback() {
-        GeocodingResponseDto.Result street = new GeocodingResponseDto.Result("Carrera 45", List.of("route"), null);
+        GeocodingResponseDto.Result street = new GeocodingResponseDto.Result("Carrera 45", List.of("route"), null, null);
         mockRestClient(new GeocodingResponseDto(List.of(street), "OK"));
 
         assertThat(adapter.resolveZone(4.628, -74.064)).contains("Carrera 45");
@@ -77,7 +76,7 @@ class GoogleGeocodingAdapterTest {
 
     @Test
     void resolveZone_resultHasNullTypes_skipsPoiFilter() {
-        GeocodingResponseDto.Result r = new GeocodingResponseDto.Result("Somewhere", null, null);
+        GeocodingResponseDto.Result r = new GeocodingResponseDto.Result("Somewhere", null, null, null);
         mockRestClient(new GeocodingResponseDto(List.of(r), "OK"));
 
         assertThat(adapter.resolveZone(4.628, -74.064)).contains("Somewhere");

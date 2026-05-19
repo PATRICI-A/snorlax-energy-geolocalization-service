@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -37,7 +38,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+    public InternalTokenFilter internalTokenFilter(
+            @Value("${internal.service.token:}") String token) {
+        return new InternalTokenFilter(token);
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           JwtAuthFilter jwtAuthFilter,
+                                           InternalTokenFilter internalTokenFilter) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)
@@ -55,12 +64,14 @@ public class SecurityConfig {
                     "/swagger-ui/index.html",
                     "/v3/api-docs/**"
                 ).permitAll()
+                .requestMatchers("/internal/**").hasRole("INTERNAL")
                 .anyRequest().authenticated()
             )
             .exceptionHandling(e -> e
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
             )
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(internalTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -104,6 +115,38 @@ public class SecurityConfig {
             String userId = jwtService.extractUserId(token);
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userId, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            chain.doFilter(request, response);
+        }
+    }
+
+    @RequiredArgsConstructor
+    public static class InternalTokenFilter extends OncePerRequestFilter {
+
+        private static final String INTERNAL_TOKEN_HEADER = "X-Internal-Service-Token";
+
+        private final String internalServiceToken;
+
+        @Override
+        protected void doFilterInternal(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        FilterChain chain) throws ServletException, IOException {
+            if (!request.getRequestURI().startsWith("/internal/")) {
+                chain.doFilter(request, response);
+                return;
+            }
+
+            String token = request.getHeader(INTERNAL_TOKEN_HEADER);
+            if (token == null || token.isBlank() || !token.equals(internalServiceToken)) {
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\":\"INVALID_INTERNAL_TOKEN\"}");
+                return;
+            }
+
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                    "internal-service", null,
+                    List.of(new SimpleGrantedAuthority("ROLE_INTERNAL")));
             SecurityContextHolder.getContext().setAuthentication(auth);
             chain.doFilter(request, response);
         }

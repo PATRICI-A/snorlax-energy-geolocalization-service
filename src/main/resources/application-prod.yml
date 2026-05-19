@@ -24,6 +24,23 @@ gamification:
   service:
     url: ${GAMIFICATION_SERVICE_URL:http://localhost:8080}
 
+user:
+  service:
+    url: ${USER_SERVICE_URL:http://localhost:8099}
+
+parche:
+  service:
+    url: ${PARCHE_SERVICE_URL:http://localhost:8085}
+
+campus:
+  events:
+    service:
+      url: ${CAMPUS_EVENTS_SERVICE_URL:http://localhost:8086}
+
+internal:
+  service:
+    token: ${INTERNAL_SERVICE_TOKEN:snorlax-internal-secret-geo-2025}
+
 geo:
   campus:
     default-radius-meters: ${GEO_DEFAULT_RADIUS:500}
