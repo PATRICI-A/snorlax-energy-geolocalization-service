@@ -1,9 +1,11 @@
 package edu.eci.patricia.geolocalization.entrypoints.advice;
 
+import edu.eci.patricia.geolocalization.domain.exceptions.ExternalServiceException;
 import edu.eci.patricia.geolocalization.domain.exceptions.InvalidRadiusException;
 import edu.eci.patricia.geolocalization.domain.exceptions.LocationNotFoundException;
 import edu.eci.patricia.geolocalization.domain.exceptions.LocationOutsideCampusException;
 import edu.eci.patricia.geolocalization.domain.exceptions.StaleTimestampException;
+import edu.eci.patricia.geolocalization.domain.exceptions.TooFrequentUpdateException;
 import edu.eci.patricia.geolocalization.domain.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -49,6 +51,20 @@ class GlobalExceptionHandlerTest {
         ResponseEntity<ErrorResponse> resp = handler.handleStaleTimestamp(new StaleTimestampException());
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
         assertThat(resp.getBody().codigo()).isEqualTo("STALE_TIMESTAMP");
+    }
+
+    @Test
+    void handleTooFrequentUpdate_returns429() {
+        ResponseEntity<ErrorResponse> resp = handler.handleTooFrequentUpdate(new TooFrequentUpdateException(25));
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
+        assertThat(resp.getBody().codigo()).isEqualTo("TOO_FREQUENT_UPDATE");
+    }
+
+    @Test
+    void handleExternalService_returns503() {
+        ResponseEntity<ErrorResponse> resp = handler.handleExternalService(new ExternalServiceException("Service down"));
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        assertThat(resp.getBody().codigo()).isEqualTo("SERVICE_UNAVAILABLE");
     }
 
     @Test
