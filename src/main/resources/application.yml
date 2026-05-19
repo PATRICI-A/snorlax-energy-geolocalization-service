@@ -15,5 +15,13 @@ spring:
     ssl:
       enabled: ${RABBITMQ_SSL:false}
 
+management:
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: false
+
 server:
   forward-headers-strategy: framework
