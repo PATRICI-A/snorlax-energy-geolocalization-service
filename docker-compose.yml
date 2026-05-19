@@ -6,6 +6,10 @@ services:
       - "8083:8083"
     env_file:
       - .env
+    entrypoint:
+      - sh
+      - -c
+      - 'exec java -Dspring.mongodb.uri=mongodb://mongodb:27017/geolocalization -jar /app/app.jar'
     depends_on:
       - mongodb
     restart: unless-stopped

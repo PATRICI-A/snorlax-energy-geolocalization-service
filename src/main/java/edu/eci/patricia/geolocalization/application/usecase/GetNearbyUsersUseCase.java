@@ -36,7 +36,8 @@ public class GetNearbyUsersUseCase implements GetNearbyUsersPort {
                     double distance = origin.distanceMetersTo(target);
                     return new NearbyUserResponseDto(
                             loc.getUserId(), loc.getLatitude(), loc.getLongitude(),
-                            loc.getCampusZone(), distance, loc.getUpdatedAt()
+                            loc.getCampusZone(), distance, loc.getUpdatedAt(),
+                            loc.isActive(), loc.isLowPrecision()
                     );
                 })
                 .sorted(Comparator.comparingDouble(NearbyUserResponseDto::distanceMeters))
