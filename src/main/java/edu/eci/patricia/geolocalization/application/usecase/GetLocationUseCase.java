@@ -21,7 +21,8 @@ public class GetLocationUseCase implements GetLocationPort {
 
         return new LocationResponseDto(
                 location.getUserId(), location.getLatitude(), location.getLongitude(),
-                location.getCampusZone(), location.getAccuracy(), location.getUpdatedAt()
+                location.getCampusZone(), location.getAccuracy(), location.getUpdatedAt(),
+                location.isActive(), location.isLowPrecision()
         );
     }
 }

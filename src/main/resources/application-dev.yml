@@ -24,13 +24,33 @@ gamification:
   service:
     url: ${GAMIFICATION_SERVICE_URL:http://localhost:8080}
 
+user:
+  service:
+    url: ${USER_SERVICE_URL:http://localhost:8099}
+
+parche:
+  service:
+    url: ${PARCHE_SERVICE_URL:http://localhost:8085}
+
+campus:
+  events:
+    service:
+      url: ${CAMPUS_EVENTS_SERVICE_URL:http://localhost:8086}
+
 geo:
   campus:
     default-radius-meters: ${GEO_DEFAULT_RADIUS:500}
+    center-lat: ${GEO_CAMPUS_CENTER_LAT:4.6035}
+    center-lng: ${GEO_CAMPUS_CENTER_LNG:-74.0653}
+    perimeter-radius-meters: ${GEO_CAMPUS_PERIMETER:1000}
 
 google:
   maps:
     api-key: ${GOOGLE_MAPS_API_KEY:}
+
+internal:
+  service:
+    token: ${INTERNAL_SERVICE_TOKEN:snorlax-internal-secret-geo-2025}
 
 springdoc:
   swagger-ui:

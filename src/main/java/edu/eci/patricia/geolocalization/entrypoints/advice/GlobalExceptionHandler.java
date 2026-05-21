@@ -1,9 +1,11 @@
 package edu.eci.patricia.geolocalization.entrypoints.advice;
 
+import edu.eci.patricia.geolocalization.domain.exceptions.ExternalServiceException;
 import edu.eci.patricia.geolocalization.domain.exceptions.InvalidRadiusException;
 import edu.eci.patricia.geolocalization.domain.exceptions.LocationNotFoundException;
 import edu.eci.patricia.geolocalization.domain.exceptions.LocationOutsideCampusException;
 import edu.eci.patricia.geolocalization.domain.exceptions.StaleTimestampException;
+import edu.eci.patricia.geolocalization.domain.exceptions.TooFrequentUpdateException;
 import edu.eci.patricia.geolocalization.domain.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +46,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleStaleTimestamp(StaleTimestampException ex) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(ErrorResponse.of("STALE_TIMESTAMP", ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(TooFrequentUpdateException.class)
+    public ResponseEntity<ErrorResponse> handleTooFrequentUpdate(TooFrequentUpdateException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(ErrorResponse.of("TOO_FREQUENT_UPDATE", ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<ErrorResponse> handleExternalService(ExternalServiceException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ErrorResponse.of("SERVICE_UNAVAILABLE", ex.getMessage(), null));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
