@@ -60,7 +60,7 @@ class UpdateLocationUseCaseTest {
 
     @Test
     void updateLocation_existingUser_updatesAndReturns() {
-        Location existing = new Location("id1", "user-1", LAT, LON, "Bloque A", 10.0, LocalDateTime.now());
+        Location existing = new Location("id1", "user-1", LAT, LON, "Bloque A", 10.0, LocalDateTime.now().minusSeconds(31));
         UpdateLocationRequestDto dto = new UpdateLocationRequestDto(LAT, LON, 12.0, "Cafetería", null);
 
         when(locationRepository.findByUserId("user-1")).thenReturn(Optional.of(existing));

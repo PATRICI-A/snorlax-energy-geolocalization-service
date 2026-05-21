@@ -30,5 +30,4 @@ jobs:
           az containerapp update \
             --name patricia-geo-service-prod \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:qa-latest \
-            --revision-suffix rev-${{ github.run_number }}
+            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:qa-${{ github.event.workflow_run.head_sha }}

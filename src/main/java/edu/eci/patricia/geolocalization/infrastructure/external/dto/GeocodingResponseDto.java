@@ -11,8 +11,13 @@ public record GeocodingResponseDto(
     public record Result(
             @JsonProperty("formatted_address") String formattedAddress,
             List<String> types,
-            @JsonProperty("address_components") List<AddressComponent> addressComponents
+            @JsonProperty("address_components") List<AddressComponent> addressComponents,
+            Geometry geometry
     ) {}
+
+    public record Geometry(Location location) {}
+
+    public record Location(double lat, double lng) {}
 
     public record AddressComponent(
             @JsonProperty("long_name") String longName,
